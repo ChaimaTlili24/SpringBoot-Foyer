@@ -22,6 +22,11 @@ public interface ChambreRepository extends JpaRepository<Chambre, Long> {
     @Query("SELECT COUNT(c) FROM Chambre c JOIN c.reservations r " +
             "WHERE r.estValide = false AND r.anneeUniversitaire < :annee")
     long countChambresAvecReservationsNonValidesAvantAnnee(@Param("annee") String anneeUniversitaire);
+    long countByTypeC(TypeChambre typeChambre);
+    @Query("SELECT c FROM Chambre c")
+    List<Chambre> findAllChambres();
+
+
 
 
 }

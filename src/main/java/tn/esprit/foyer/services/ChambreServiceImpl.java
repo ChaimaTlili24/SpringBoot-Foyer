@@ -1,7 +1,9 @@
 package tn.esprit.foyer.services;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import tn.esprit.foyer.models.Bloc;
 import tn.esprit.foyer.models.Chambre;
@@ -10,10 +12,13 @@ import tn.esprit.foyer.repositories.BlocRepository;
 import tn.esprit.foyer.repositories.ChambreRepository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Service
+@Slf4j
 public class ChambreServiceImpl implements ChambreService {
     // type 1
     //private final ChambreRepository chambreRepository;
@@ -119,4 +124,44 @@ public class ChambreServiceImpl implements ChambreService {
         }
         return null;
     }
+//    @Scheduled(fixedDelay = 10000)
+//    public void fixedDelayMethod() {
+//        log.info("Method with fixed delay");
+//    }
+//    @Scheduled(fixedRate = 10000)
+//    public void fixedRateMethod() {
+//        log.info("Method with fixed Rate");
+//}
+//@Scheduled(cron = "0 * * * * *")
+//public void listeChambre(){
+//    List<Bloc> blocs = blocRepository.findAllWithChambres();
+//
+//    for (Bloc bloc : blocs) {
+//        log.info("Bloc => " + bloc.getNomBloc() + " ayant une capacité " + bloc.getCapaciteBloc());
+//
+//        List<Chambre> chambres = bloc.getChambres();
+//        if (chambres == null || chambres.isEmpty()) {
+//            log.info("Pas de chambre disponible dans ce bloc");
+//            log.info("***********************");
+//        } else {
+//            log.info("La liste des chambres pour ce bloc:");
+//            for (Chambre chambre : chambres) {
+//                log.info("NumChambre: " + chambre.getNumeroChambre() + " type: " + chambre.getTypeC());
+//            }
+//            log.info("***********************");
+//        }
+//    }
+//}
+@Scheduled(cron = "0 */5 * * * *") // Toutes les 5 minutes
+public void pourcentageChambreParTypeChambre() {
+    long totalChambres = chambreRepository.count();
+    log.info("Nombre total des chambres: " + totalChambres);
+
+    for (TypeChambre type : TypeChambre.values()) {
+        long countType = chambreRepository.countByTypeC(type);
+        double pourcentage = (totalChambres == 0) ? 0.0 : (countType * 100.0) / totalChambres;
+
+        log.info("Le pourcentage des chambres pour le type " + type + " est égale à " + String.format("%.1f", pourcentage));
+    }
+}
 } // Clôture
